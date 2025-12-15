@@ -3243,6 +3243,9 @@ void aicwf_p2p_alive_timeout(struct timer_list *t)
     #if LINUX_VERSION_CODE < KERNEL_VERSION(4, 15, 0)
     rwnx_vif = (struct rwnx_vif *)data;
     rwnx_hw = rwnx_vif->rwnx_hw;
+    #elif LINUX_VERSION_CODE >= KERNEL_VERSION(6, 16, 0)
+    rwnx_hw = timer_container_of(rwnx_hw, t, p2p_alive_timer);
+    rwnx_vif = rwnx_hw->p2p_dev_vif;
     #else
     rwnx_hw = from_timer(rwnx_hw, t, p2p_alive_timer);
     rwnx_vif = rwnx_hw->p2p_dev_vif;
@@ -3491,7 +3494,11 @@ static int rwnx_cfg80211_del_iface(struct wiphy *wiphy, struct wireless_dev *wde
 #if 0
 	if (rwnx_vif == rwnx_hw->p2p_dev_vif) {
 		if (timer_pending(&rwnx_hw->p2p_alive_timer)) {
+        #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
+        timer_delete_sync(&rwnx_hw->p2p_alive_timer);
+        #else
 			del_timer_sync(&rwnx_hw->p2p_alive_timer);
+        #endif
 		}
 	}
 #endif
@@ -3740,7 +3747,11 @@ static void rwnx_cfgp2p_stop_p2p_device(struct wiphy *wiphy, struct wireless_dev
 	if (rwnx_vif == rwnx_hw->p2p_dev_vif) {
 		rwnx_hw->is_p2p_alive = 0;
 		if (timer_pending(&rwnx_hw->p2p_alive_timer)) {
+            #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
+            timer_delete_sync(&rwnx_hw->p2p_alive_timer);
+            #else
 			del_timer_sync(&rwnx_hw->p2p_alive_timer);
+            #endif
 		}
 		if (rwnx_vif->up) {
 			rwnx_send_remove_if(rwnx_hw, rwnx_vif->vif_index, true);
@@ -5251,7 +5262,11 @@ void rwnx_cfg80211_mgmt_frame_register(struct wiphy *wiphy,
  *	have changed. The actual parameter values are available in
  *	struct wiphy. If returning an error, no value should be changed.
  */
-static int rwnx_cfg80211_set_wiphy_params(struct wiphy *wiphy, u32 changed)
+static int rwnx_cfg80211_set_wiphy_params(struct wiphy *wiphy, 
+    #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0)
+        int radio_idx,
+    #endif
+    u32 changed)
 {
     return 0;
 }
@@ -5267,6 +5282,9 @@ static int rwnx_cfg80211_set_wiphy_params(struct wiphy *wiphy, u32 changed)
 static int rwnx_cfg80211_set_tx_power(struct wiphy *wiphy,
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 8, 0)
  struct wireless_dev *wdev,
+ #endif
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 17, 0)
+ int radio_idx,
 #endif
                                       enum nl80211_tx_power_setting type, int mbm)
 {
