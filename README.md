@@ -1,8 +1,9 @@
 # aic8800dc
 
-Tested on Linux kernel 6.17 with Kubuntu.
+I have updated the code based on the solution given in a tp-link [community post](https://community.tp-link.com/en/home/forum/topic/713458?replyId=1645862).  
+Tested on Linux kernel 6.17.0-8-generic on Kubuntu OS.
 
-### Attention
+### Important
 Before installing the driver, delete all aic8800-related folders under /lib/firmware. Using an incorrect firmware version may cause the system to freeze.
 
 ### Installation Steps
