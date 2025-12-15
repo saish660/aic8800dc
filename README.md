@@ -1,6 +1,6 @@
 # aic8800dc
 
-Tested on Linux kernel 6.14 with Ubuntu.
+Tested on Linux kernel 6.17 with Kubuntu.
 
 ### Attention
 Before installing the driver, delete all aic8800-related folders under /lib/firmware. Using an incorrect firmware version may cause the system to freeze.
@@ -80,6 +80,18 @@ To check if the Wi-Fi interface is recognized, run:
 ```bash
 iwconfig
 ```
+If the device is recognized as a storage device, switch the mode using usb_modeswitch:
+
+```bash
+sudo apt install usb-modeswitch usb-modeswitch-data
+```
+```bash
+sudo usb_modeswitch \
+  -v 0xa69c \
+  -p 0x5721 \
+  -M "5553424312345678000000000000061b000000020000000000000000000000"
+```
+
 If the device is still not active, check the kernel logs for any errors related to the driver:
 
 ```bash
